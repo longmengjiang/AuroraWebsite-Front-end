@@ -1,8 +1,105 @@
 <script setup>
 defineOptions({
   name: 'ClockState2'
-  // 会议请假 页面
+  // 打卡请假 页面
 })
+
+import WelCome2 from '@/component/Global2/WelCome2.vue'
+import { ref, computed } from 'vue'
+import { debounce } from '@/utils/DebounceThrottle'
+import { useRouter } from 'vue-router'
+import { GetClockLeave, PostClockLeave } from '@/api'
+import { useUserStore } from '@/stores/modules/user'
+import { ElMessage } from 'element-plus'
+const userStore = useUserStore()
+
+const router = useRouter()
+
+// 一、分页查询打卡请假记录
+const leaveHistory = ref([])
+const total = ref(0)
+const params = ref({ ye: 1, tiao: 10 })
+
+const getClockLeave = async () => {
+  const res = await GetClockLeave(params.value.ye, params.value.tiao, userStore.userInfo.name)
+  leaveHistory.value = res.data.records
+  total.value = res.data.total
+
+  leaveHistory.value.map((item) => {
+    item.timerAbsenceStatus = item.timerAbsenceStatus === 1 ? '已批准' : '未批准'
+  })
+  // console.log(res);
+
+  ElMessage.success(res.msg || '打卡请假记录查询成功')
+}
+getClockLeave()
+
+// 二、打卡请假按钮 上传
+
+// 定义表单数据
+const leaveWeek = ref('小A')
+const leaveReason = ref('直播')
+const errors = ref({
+  leaveWeek: '',
+  leaveReason: ''
+})
+
+// 点击提交按钮处理
+const handleSubmit = debounce(async () => {
+  // 清空之前的错误
+  errors.value.leaveWeek = ''
+  errors.value.leaveReason = ''
+
+  // 验证
+  if (!leaveWeek.value) {
+    errors.value.leaveWeek = '请假周次不能为空'
+    alert('请假周次不能为空')
+    return
+  }
+  if (!leaveReason.value) {
+    errors.value.leaveReason = '请假原因不能为空'
+    alert('请假原因不能为空')
+    return
+  }
+
+  const res = await PostClockLeave(
+    userStore.userInfo.userId,
+    userStore.userInfo.name,
+    leaveWeek.value,
+    leaveReason.value
+  )
+  console.log(res)
+  ElMessage.success(res.msg || '打卡请假申请成功')
+  // 如果上传失败
+  // if (!uploadSuccess) {
+  //   alert('上传失败')
+  //   return
+  // }
+
+  // 上传成功
+  // alert('上传成功')
+}, 500)
+
+// 点击历史记录盒子
+const goToHistory = () => {
+  router.push('/manage/meeting/meetingLeaveManage')
+}
+
+// 点击 三个点 前往 管理员 批准打卡请假
+// 传递两个参数  第一个：请假的 id， 第二个：请假状态, 第三个：请假人姓名， 第四个：请假原因
+const goApprove = (id, status, name, reason) => {
+  status = status === '已批准' ? 1 : 0
+
+  router.push({
+    path: '/manage/clock/clockLeaveApprove',
+    query: {
+      id,
+      timerAbsenceStatus: status,
+      name,
+      reason
+    }
+  })
+}
 </script>
 
 <template>
@@ -11,9 +108,7 @@ defineOptions({
     <NavBar2></NavBar2>
 
     <!-- 欢迎横幅 -->
-    <div class="welcome">
-      <span>welcome to join us</span>
-    </div>
+    <WelCome2></WelCome2>
 
     <!-- 侧栏 + 主体内容 -->
     <div class="main-content">
@@ -36,7 +131,29 @@ defineOptions({
 
         <!-- 记录内容 -->
         <div class="record-content">
-          <div class="record-item">
+          <div class="record-item" ref="recordItem" v-for="item in leaveHistory" :key="item.id">
+            <span class="avatar"></span>
+            <span class="name">{{ item.name }}</span>
+            <span class="date">{{ item.timerAbsenceTime }}</span>
+            <span
+              class="state"
+              :style="{
+                backgroundColor: item.timerAbsenceStatus === '已批准' ? '#79918b' : '#f8cb1a'
+              }"
+              >{{ item.timerAbsenceStatus }}</span
+            >
+            <span
+              class="more"
+              @click="
+                goApprove(item.id, item.timerAbsenceStatus, item.name, item.timerAbsenceReason)
+              "
+            >
+              <span class="more-item"></span>
+              <span class="more-item"></span>
+              <span class="more-item"></span>
+            </span>
+          </div>
+          <!-- <div class="record-item">
             <span class="avatar"></span>
             <span class="name">Peter</span>
             <span class="date">10:00:00</span>
@@ -57,19 +174,7 @@ defineOptions({
               <span class="more-item"></span>
               <span class="more-item"></span>
             </span>
-          </div>
-          <div class="record-item">
-            <span class="avatar"></span>
-            <span class="name">Peter</span>
-            <span class="date">10:00:00</span>
-            <span class="state">已打满</span>
-            <span class="more">
-              <span class="more-item"></span>
-              <span class="more-item"></span>
-              <span class="more-item"></span>
-            </span>
-          </div>
-
+          </div> -->
         </div>
 
         <!-- 打卡请假 -->
@@ -87,17 +192,29 @@ defineOptions({
         <!-- 请假周次 -->
         <div class="link">
           <div class="ch_des">请假周次：</div>
-          <input type="text" class="input" placeholder="请输入请假周次" />
+          <input
+            type="text"
+            class="input"
+            @keyup.enter="handleSubmit"
+            v-model="leaveWeek"
+            placeholder="请输入请假周次"
+          />
         </div>
 
         <!-- 请假原因 -->
         <div class="link">
           <div class="ch_des">请假原因：</div>
-          <input type="text" class="input" placeholder="请输入请假原因" />
+          <input
+            type="text"
+            @keyup.enter="handleSubmit"
+            v-model="leaveReason"
+            class="input"
+            placeholder="请输入请假原因"
+          />
         </div>
 
         <!-- 上传按钮 -->
-        <button class="submitBtn">上传</button>
+        <button class="submitBtn" @click="handleSubmit">上传</button>
       </div>
     </div>
   </div>
@@ -152,7 +269,7 @@ defineOptions({
   margin: 26px 345px 20px 69px;
   display: flex;
   justify-content: space-around;
-  background-color: skyblue;
+  /* background-color: skyblue; */
 }
 
 .describe {
@@ -171,7 +288,7 @@ defineOptions({
   font-size: 16px;
   font-weight: 400;
   letter-spacing: 0px;
-  line-height: 37.65px;
+  line-height: 44.65px;
   color: rgba(0, 0, 0, 0.5);
 }
 
@@ -200,17 +317,21 @@ defineOptions({
   display: flex;
   flex-direction: column;
   gap: 7px;
-  background-color: skyblue;
+  /* background-color: skyblue; */
 }
 
 .record-content .record-item {
   width: 942px;
   height: 94px;
-  background-color: pink;
+  /* background-color: pink; */
   border-radius: 45px;
   display: flex;
   /* justify-content: center; */
   align-items: center;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.3);
+}
+.record-content .record-item:hover {
+  background-color: #dbe2e0;
 }
 .record-item .avatar {
   margin-left: 20px;
@@ -253,7 +374,7 @@ defineOptions({
   height: 40px;
   border-radius: 24px;
   background: rgba(0, 47, 36, 0.53);
-
+  margin-left: 1;
   display: flex;
   justify-content: center;
   align-items: center;

@@ -2,6 +2,57 @@
 defineOptions({
   name: 'myRecord2'
 })
+
+import { ref } from 'vue'
+import { debounce } from '@/utils/DebounceThrottle'
+
+import { useRouter } from 'vue-router'
+const router = useRouter()
+
+import { useUserStore } from '@/stores'
+const userStore = useUserStore()
+
+import { GetRecord, PostRecord } from '@/api'
+
+
+// 分页查询刷题记录
+const list = ref([])
+const params = ref({
+  ye: 1,
+  tiao: 10
+})
+const getList = async () => {
+  const res = await GetRecord(params.value.ye, params.value.tiao)
+  // list.value = res.data.records
+  // console.log(res)
+}
+getList()
+
+
+// 定义题目链接的响应式变量
+// const questionLink = ref('https://leetcode.cn/submissions/detail/580626492/')
+const questionLink = ref('https://www.luogu.com.cn/record/181855120')
+
+// 上传题目链接按钮
+const handleSubmit = debounce(async () => {
+  // 验证
+  if (!questionLink.value) {
+    alert('题目链接不能为空')
+    return
+  }
+  const res = await PostRecord({
+    userId: userStore.userInfo.userId,
+    titleUrl: questionLink.value
+  })
+
+  ElMessage.success(res.msg || '提交成功')
+
+  // if (res) {
+  //   alert('提交成功：' + questionLink.value)
+  // } else {
+  //   alert('提交失败，请重试')
+  // }
+}, 500)
 </script>
 
 <template>
@@ -45,26 +96,6 @@ defineOptions({
               <span class="more-item"></span>
             </span>
           </div>
-          <div class="record-item">
-            <span class="avatar"></span>
-            <span class="name">Peter</span>
-            <span class="date">2025年2月2日</span>
-            <span class="more">
-              <span class="more-item"></span>
-              <span class="more-item"></span>
-              <span class="more-item"></span>
-            </span>
-          </div>
-          <div class="record-item">
-            <span class="avatar"></span>
-            <span class="name">Peter</span>
-            <span class="date">2025年2月2日</span>
-            <span class="more">
-              <span class="more-item"></span>
-              <span class="more-item"></span>
-              <span class="more-item"></span>
-            </span>
-          </div>
         </div>
 
         <!-- 提交题目 -->
@@ -79,11 +110,17 @@ defineOptions({
         <!-- 题目链接 -->
         <div class="link">
           <div class="ch_des">题目链接：</div>
-          <input type="text" class="input" placeholder="请输入题目链接" />
+          <input
+            type="text"
+            v-model="questionLink"
+            @keyup.enter="handleSubmit"
+            class="input"
+            placeholder="请输入题目链接"
+          />
         </div>
 
         <!-- 上传按钮 -->
-        <button class="submitBtn">上传</button>
+        <button class="submitBtn" @click="handleSubmit">上传</button>
       </div>
     </div>
   </div>
@@ -138,7 +175,7 @@ defineOptions({
   margin: 26px 345px 20px 69px;
   display: flex;
   justify-content: space-around;
-  background-color: skyblue;
+  /* background-color: skyblue; */
 }
 
 .describe {
@@ -157,7 +194,7 @@ defineOptions({
   font-size: 16px;
   font-weight: 400;
   letter-spacing: 0px;
-  line-height: 37.65px;
+  line-height: 44.65px;
   color: rgba(0, 0, 0, 0.5);
 }
 
@@ -186,17 +223,21 @@ defineOptions({
   display: flex;
   flex-direction: column;
   gap: 7px;
-  background-color: skyblue;
+  /* background-color: skyblue; */
 }
 
 .record-content .record-item {
   width: 942px;
   height: 94px;
-  background-color: pink;
+  /* background-color: pink; */
   border-radius: 45px;
   display: flex;
   /* justify-content: center; */
   align-items: center;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.3);
+}
+.record-content .record-item:hover {
+  background-color: #dbe2e0;
 }
 .record-item .avatar {
   margin-left: 20px;
@@ -233,6 +274,20 @@ defineOptions({
   color: rgba(0, 0, 0, 1);
   text-align: left;
   vertical-align: top;
+}
+.record-item .state {
+  width: 100px;
+  height: 40px;
+  border-radius: 24px;
+  background: rgba(0, 47, 36, 0.53);
+  margin-left: 1;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  /** 文本1 */
+  font-size: 24px;
+  font-weight: 400;
+  color: rgba(255, 255, 255, 1);
 }
 .record-item .more {
   margin-left: 307px;

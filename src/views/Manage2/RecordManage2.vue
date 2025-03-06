@@ -1,8 +1,19 @@
 <script setup>
 defineOptions({
-  name: 'KeyManage2'
-  // 钥匙管理 页面
+  name: 'RecordManage2'
+  // 管理员 刷题记录管理 页面
 })
+import { ref } from 'vue'
+import { useRouter } from 'vue-router'
+import { GetRecord, GetRecordCount } from '@/api'
+import { useUserStore } from '@/stores/modules/user'
+
+const list = ref([])
+const getList = async () => {
+  const res = await GetRecordCount()
+  list.value = res.data
+}
+getList()
 </script>
 
 <template>
@@ -33,33 +44,11 @@ defineOptions({
 
         <!-- 记录内容 -->
         <div class="record-content">
-          <div class="record-item">
+          <div class="record-item" v-for="item in list" :key="item.id">
             <span class="avatar"></span>
-            <span class="name">Peter</span>
-            <span class="date">2025年2月2日</span>
-            <span class="state">857894528*****</span>
-            <span class="more">
-              <span class="more-item"></span>
-              <span class="more-item"></span>
-              <span class="more-item"></span>
-            </span>
-          </div>
-          <div class="record-item">
-            <span class="avatar"></span>
-            <span class="name">Peter</span>
-            <span class="date">2025年2月2日</span>
-            <span class="state">857894528*****</span>
-            <span class="more">
-              <span class="more-item"></span>
-              <span class="more-item"></span>
-              <span class="more-item"></span>
-            </span>
-          </div>
-          <div class="record-item">
-            <span class="avatar"></span>
-            <span class="name">Peter</span>
-            <span class="date">2025年2月2日</span>
-            <span class="state">857894528*****</span>
+            <span class="name">{{ item.name }}</span>
+            <span class="date">{{ item.updateTime }}</span>
+            <span class="state">***********</span>
             <span class="more">
               <span class="more-item"></span>
               <span class="more-item"></span>
@@ -121,7 +110,7 @@ defineOptions({
   margin: 26px 345px 20px 69px;
   display: flex;
   justify-content: space-around;
-  background-color: skyblue;
+  /* background-color: skyblue; */
 }
 
 .describe {
@@ -140,7 +129,7 @@ defineOptions({
   font-size: 16px;
   font-weight: 400;
   letter-spacing: 0px;
-  line-height: 37.65px;
+  line-height: 44.65px;
   color: rgba(0, 0, 0, 0.5);
 }
 
@@ -169,17 +158,21 @@ defineOptions({
   display: flex;
   flex-direction: column;
   gap: 7px;
-  background-color: skyblue;
+  /* background-color: skyblue; */
 }
 
 .record-content .record-item {
   width: 942px;
   height: 94px;
-  background-color: pink;
+  /* background-color: pink; */
   border-radius: 45px;
   display: flex;
   /* justify-content: center; */
   align-items: center;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.3);
+}
+.record-content .record-item:hover {
+  background-color: #dbe2e0;
 }
 .record-item .avatar {
   margin-left: 20px;
@@ -222,7 +215,7 @@ defineOptions({
   height: 40px;
   border-radius: 24px;
   background: rgba(0, 47, 36, 0.53);
-
+  margin-left: 1;
   display: flex;
   justify-content: center;
   align-items: center;

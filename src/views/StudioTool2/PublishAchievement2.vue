@@ -2,6 +2,42 @@
 defineOptions({
   name: 'PublishAchievement2'
 })
+
+import { ref } from 'vue'
+import { debounce } from '@/utils/DebounceThrottle'
+import { useRouter } from 'vue-router'
+
+const router = useRouter()
+
+// 定义响应式变量
+const group = ref('')
+const topic = ref('')
+const achievementIntroduction = ref('')
+
+// 提交处理
+const handleSubmit = debounce(() => {
+  // 验证
+  if (!group.value) {
+    alert('分组不能为空')
+    return
+  } else if (!topic.value) {
+    alert('主题不能为空')
+    return
+  } else if (!achievementIntroduction.value) {
+    alert('成就介绍不能为空')
+    return
+  }
+
+  // 模拟提交成功
+  const submitSuccess = true // 这里替换为实际的提交逻辑
+
+  if (submitSuccess) {
+    alert('上传成功')
+    router.push('/introduce') // 跳转到目标页面
+  } else {
+    alert('上传失败，请重试')
+  }
+}, 500)
 </script>
 
 <template>
@@ -22,7 +58,7 @@ defineOptions({
             <div class="ch_des">分组</div>
             <div class="en_des">grouping</div>
           </div>
-          <input class="input" placeholder="Enter" />
+          <input class="input" v-model="group" @keyup.enter="handleSubmit" placeholder="Enter" />
         </div>
 
         <!-- 账号 -->
@@ -31,7 +67,7 @@ defineOptions({
             <div class="ch_des">主题</div>
             <div class="en_des">topic</div>
           </div>
-          <input class="input" placeholder="Enter" />
+          <input class="input" v-model="topic" @keyup.enter="handleSubmit" placeholder="Enter" />
         </div>
 
         <!-- 密码 -->
@@ -40,11 +76,16 @@ defineOptions({
             <div class="ch_des">成就介绍</div>
             <div class="en_des">Achievement introduction</div>
           </div>
-          <input class="input" placeholder="Enter" />
+          <input
+            class="input"
+            v-model="achievementIntroduction"
+            @keyup.enter="handleSubmit"
+            placeholder="Enter"
+          />
         </div>
 
         <!-- 箭头 -->
-        <div class="arrow" to="/introduce">
+        <div class="arrow" @click="handleSubmit">
           <!-- 点击传送 往 *** 页面，待处理 -->
           <div class="you"></div>
         </div>
@@ -151,7 +192,7 @@ defineOptions({
   /** 文本1 */
   font-size: 18px;
   font-weight: 400;
-  color: rgba(140, 140, 140, 0.48);
+  /* color: rgba(140, 140, 140, 0.48); */
 }
 
 /* 箭头 */

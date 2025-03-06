@@ -3,7 +3,7 @@ defineOptions({
   name: 'myJoin'
 })
 import { ref } from 'vue'
-import InPut from '@/components/global/Input.vue'
+import InPut from '@/component/global/Input.vue'
 
 const Major = ref([
   { id: 1, name: '计算机科学与技术' },

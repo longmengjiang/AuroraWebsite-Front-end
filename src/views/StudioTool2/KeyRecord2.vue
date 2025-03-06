@@ -3,6 +3,49 @@ defineOptions({
   name: 'KeyRecord2'
   // 钥匙记录 页面
 })
+import { ref } from 'vue'
+import { useUserStore } from '@/stores'
+const userStore = useUserStore()
+import { useRouter } from 'vue-router'
+const router = useRouter()
+
+import { GetKey, PutKey, GetKeyState } from '@/api';
+
+// 一、查询钥匙记录
+const List = ref([])
+const GetList = async () => {
+  const res = await GetKeyState()
+  List.value = res.data
+
+  // ElMessage.success(res.msg||'获取成功')
+}
+GetList()
+
+// 二、拿取 / 归还钥匙
+const returnKey = async () => {
+  const res = await PutKey(1, userStore.userInfo.name, userStore.userInfo.userId)
+  ElMessage.success(res.msg||'归还成功')
+  GetList()
+}
+const takeKey = async () => {
+  const res = await PutKey(-1, userStore.userInfo.name, userStore.userInfo.userId)
+  ElMessage.success(res.msg||'拿取成功')
+  GetList()
+}
+
+// 三、工作室现存钥匙数量
+const keyNum = ref(0)
+const GetKeyNum = async () => {
+  const res = await GetKey()
+  keyNum.value = res.data.keyNumber
+}
+GetKeyNum()
+
+
+// 前往 未归还页面  UI没给
+const goKeyManage = () => {
+  // router.push('/manage/keyManage')
+}
 </script>
 
 <template>
@@ -31,7 +74,7 @@ defineOptions({
           </div>
 
           <!-- 右侧未归还 -->
-          <div class="history">未归还 ></div>
+          <div class="history" @click="goKeyManage">未归还 ></div>
         </div>
 
         <!-- 记录内容 -->
@@ -58,10 +101,10 @@ defineOptions({
               <span class="more-item"></span>
             </span>
           </div>
-          <div class="record-item">
+          <div class="record-item" v-for="item in List" :key="item">
             <span class="avatar"></span>
-            <span class="name">Peter</span>
-            <span class="date">2025年2月2日</span>
+            <span class="name">{{item.name}}</span>
+            <span class="date">{{item.leasedTime}}</span>
             <span class="state">未归还</span>
             <span class="more">
               <span class="more-item"></span>
@@ -89,11 +132,11 @@ defineOptions({
             <div class="more">···</div>
           </div>
           <div class="right-state">
-            <button class="returnKey">归还钥匙</button>
-            <button class="takeKey">拿取钥匙</button>
+            <button class="returnKey" @click="returnKey">归还钥匙</button>
+            <button class="takeKey" @click="takeKey">拿取钥匙</button>
             <div class="keyNum">
               <span class="ch_des">工作室现存钥匙个数：</span>
-              <span class="nowKeyNum">5</span>
+              <span class="nowKeyNum">{{keyNum}}</span>
             </div>
           </div>
         </div>
@@ -151,7 +194,7 @@ defineOptions({
   margin: 26px 345px 20px 69px;
   display: flex;
   justify-content: space-around;
-  background-color: skyblue;
+  /* background-color: skyblue; */
 }
 
 .describe {
@@ -170,7 +213,7 @@ defineOptions({
   font-size: 16px;
   font-weight: 400;
   letter-spacing: 0px;
-  line-height: 37.65px;
+  line-height: 44.65px;
   color: rgba(0, 0, 0, 0.5);
 }
 
@@ -199,17 +242,21 @@ defineOptions({
   display: flex;
   flex-direction: column;
   gap: 7px;
-  background-color: skyblue;
+  /* background-color: skyblue; */
 }
 
 .record-content .record-item {
   width: 942px;
   height: 94px;
-  background-color: pink;
+  /* background-color: pink; */
   border-radius: 45px;
   display: flex;
   /* justify-content: center; */
   align-items: center;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.3);
+}
+.record-content .record-item:hover {
+  background-color: #dbe2e0;
 }
 .record-item .avatar {
   margin-left: 20px;
@@ -252,7 +299,7 @@ defineOptions({
   height: 40px;
   border-radius: 24px;
   background: rgba(0, 47, 36, 0.53);
-
+  margin-left: 1;
   display: flex;
   justify-content: center;
   align-items: center;
@@ -382,7 +429,6 @@ defineOptions({
   color: rgba(0, 0, 0, 1);
 }
 .stateBox .right-state .keyNum {
-
   width: 214px;
   height: 30px;
   margin-left: 21px;
@@ -396,7 +442,7 @@ defineOptions({
 }
 .stateBox .right-state .keyNum .nowKeyNum {
   margin-left: -14px;
-  
+
   /** 文本1 */
   font-size: 14px;
   font-weight: 400;

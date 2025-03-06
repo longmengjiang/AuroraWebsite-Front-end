@@ -3,6 +3,14 @@ defineOptions({
   name: 'KeyManage2'
   // 钥匙管理 页面
 })
+import { ref } from 'vue'
+import { PostKeyNum } from '@/api'
+const keyNum = ref(0)
+const postKeyNum = async () => {
+  const res = await PostKeyNum(keyNum.value)
+
+  ElMessage.success(res.msg || '钥匙数量修改成功')
+}
 </script>
 
 <template>
@@ -83,11 +91,11 @@ defineOptions({
         <!-- 输入钥匙数量 -->
         <div class="link">
           <div class="ch_des">输入钥匙数量：</div>
-          <input type="text" class="input" placeholder="请输入钥匙数量" />
+          <input type="text" v-model="keyNum" class="input" placeholder="请输入钥匙数量" />
         </div>
 
         <!-- 上传按钮 -->
-        <button class="submitBtn">上传</button>
+        <button class="submitBtn" @click="postKeyNum">上传</button>
       </div>
     </div>
   </div>
@@ -142,7 +150,7 @@ defineOptions({
   margin: 26px 345px 20px 69px;
   display: flex;
   justify-content: space-around;
-  background-color: skyblue;
+  /* background-color: skyblue; */
 }
 
 .describe {
@@ -161,7 +169,7 @@ defineOptions({
   font-size: 16px;
   font-weight: 400;
   letter-spacing: 0px;
-  line-height: 37.65px;
+  line-height: 44.65px;
   color: rgba(0, 0, 0, 0.5);
 }
 
@@ -190,17 +198,21 @@ defineOptions({
   display: flex;
   flex-direction: column;
   gap: 7px;
-  background-color: skyblue;
+  /* background-color: skyblue; */
 }
 
 .record-content .record-item {
   width: 942px;
   height: 94px;
-  background-color: pink;
+  /* background-color: pink; */
   border-radius: 45px;
   display: flex;
   /* justify-content: center; */
   align-items: center;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.3);
+}
+.record-content .record-item:hover {
+  background-color: #dbe2e0;
 }
 .record-item .avatar {
   margin-left: 20px;
@@ -243,7 +255,7 @@ defineOptions({
   height: 40px;
   border-radius: 24px;
   background: rgba(0, 47, 36, 0.53);
-
+  margin-left: 1;
   display: flex;
   justify-content: center;
   align-items: center;

@@ -1,4 +1,52 @@
-<script setup></script>
+<script setup>
+import { ref } from 'vue'
+import { debounce } from '@/utils/DebounceThrottle'
+import { useRouter } from 'vue-router'
+
+const router = useRouter()
+
+// 定义表单数据
+const name = ref('')
+const grade = ref('')
+const position1 = ref('')
+const position2 = ref('')
+const introduction = ref('')
+
+
+// 提交处理
+const handleSubmit = debounce(() => {
+  let errorMessage = ''
+
+  // 验证表单
+  if (!name.value) {
+    errorMessage = '姓名不能为空'
+  } else if (!grade.value) {
+    errorMessage = '年级不能为空'
+  } else if (!position1.value) {
+    errorMessage = '职位1不能为空'
+  } else if (!position2.value) {
+    errorMessage = '职位2不能为空'
+  } else if (!introduction.value) {
+    errorMessage = '介绍自己不能为空'
+  }
+
+  // 如果有错误
+  if (errorMessage) {
+    alert(errorMessage)
+    return
+  }
+
+  // 模拟提交成功
+  const submitSuccess = true // 替换为实际提交逻辑
+
+  if (submitSuccess) {
+    alert('编辑成功')
+    router.push('/tool/pushPhoto') // 跳转到目标页面
+  } else {
+    alert('提交失败，请重试') // 处理提交失败情况
+  }
+}, 500)
+</script>
 
 <template>
   <!-- 导航栏 -->
@@ -31,7 +79,7 @@
               <div class="ch_des">姓名</div>
               <div class="en_des">Your name</div>
             </div>
-            <input class="input" placeholder="Enter" />
+            <input class="input" v-model="name" @keyup.enter="handleSubmit" placeholder="Enter" />
           </div>
 
           <!-- 年级 -->
@@ -40,7 +88,7 @@
               <div class="ch_des">年级</div>
               <div class="en_des">Grade</div>
             </div>
-            <input class="input" placeholder="Enter" />
+            <input class="input" v-model="grade" @keyup.enter="handleSubmit"  placeholder="Enter" />
           </div>
 
           <!-- 职位 -->
@@ -51,7 +99,7 @@
                 <div class="ch_des">职位1</div>
                 <div class="en_des">Position1</div>
               </div>
-              <input class="input" placeholder="Enter" />
+              <input class="input" v-model="position1" @keyup.enter="handleSubmit"  placeholder="Enter" />
             </div>
 
             <!-- 职位2 -->
@@ -60,7 +108,7 @@
                 <div class="ch_des">职位2</div>
                 <div class="en_des">Position2</div>
               </div>
-              <input class="input" placeholder="Enter" />
+              <input class="input" v-model="position2" @keyup.enter="handleSubmit"  placeholder="Enter" />
             </div>
           </div>
 
@@ -70,12 +118,12 @@
               <div class="ch_des">介绍自己</div>
               <div class="en_des">Introduce yourself</div>
             </div>
-            <input class="input" placeholder="Enter" />
+            <input class="input" v-model="introduction" @keyup.enter="handleSubmit"  placeholder="Enter" />
           </div>
         </div>
 
         <!-- 箭头 -->
-        <div class="arrow">
+        <div class="arrow" @click="handleSubmit">
           <div class="you"></div>
         </div>
       </div>

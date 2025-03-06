@@ -1,6 +1,6 @@
 <script setup>
 import { ref } from 'vue'
-import { PostAchievement } from '@/api/index'
+import { PostAchievement } from '@/api/index2'
 
 const group = ref('Web组')
 const group_list = ref({ name: 'Web组', placeholder: '请输入分组' })

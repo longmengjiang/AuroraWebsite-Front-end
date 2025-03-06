@@ -1,8 +1,12 @@
 <script setup>
 defineOptions({
-  name: 'MeetingPush2'
-  // 会议内容 页面
+  name: 'MeetingLeaveApprove2'
+  // 管理员 会议请假批准  页面
 })
+import { ref } from 'vue'
+import { useRoute } from 'vue-router'
+const route = useRoute()
+const Info = ref(route.query)
 </script>
 
 <template>
@@ -27,11 +31,11 @@ defineOptions({
           <div class="allDescribe">
             <div class="describe">
               <div class="ch_des">姓名:</div>
-              <div class="en_des">Peter</div>
+              <div class="en_des">{{ Info.name }}</div>
             </div>
             <div class="describe">
               <div class="ch_des">学号:</div>
-              <div class="en_des">231575789</div>
+              <div class="en_des">暂无</div>
             </div>
           </div>
         </div>
@@ -40,7 +44,13 @@ defineOptions({
       <!-- 主体内容 -->
       <div class="content">
         <!-- 会议内容 -->
-        <textarea name="" placeholder="会议请假原因........" id="" class="textarea"></textarea>
+        <textarea
+          name=""
+          v-model="Info.reason"
+          placeholder="会议请假原因........"
+          id=""
+          class="textarea"
+        ></textarea>
 
         <!-- 会议请假 -->
         <div class="meetingLeave">
@@ -174,7 +184,7 @@ defineOptions({
   font-size: 20px;
   font-weight: 400;
   letter-spacing: 0px;
-  line-height: 30.96px;
+  line-height: 28.96px;
   color: rgba(255, 255, 255, 1);
 }
 
@@ -195,7 +205,7 @@ defineOptions({
   font-weight: 400;
   letter-spacing: 0px;
   line-height: 23.17px;
-  color: rgba(0, 0, 0, 0.35);
+  /* color: rgba(0, 0, 0, 0.35); */
   /* color: black; */
   /* background-color: pink; */
 

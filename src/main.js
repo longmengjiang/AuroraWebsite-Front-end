@@ -23,6 +23,8 @@ import NavBar2 from '@/component/Global2/NavBar2.vue'
 import WelCome2 from '@/component/Global2/WelCome2.vue'
 import DecoratePoint2 from '@/component/Global2/DecoratePoint2.vue'
 
+import { debounce, throttle } from '@/utils/DebounceThrottle.js'
+
 const app = createApp(App)
 
 // 注册全局组件
@@ -46,6 +48,9 @@ app.component('DecoratePoint2', DecoratePoint2)
 
 // 设置 axios 到实例上
 app.config.globalProperties.$http = axios
+
+app.config.globalProperties.$debounce = debounce
+app.config.globalProperties.$throttle = throttle
 
 app.use(pinia)
 app.use(router)

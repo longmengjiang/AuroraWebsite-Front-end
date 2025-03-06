@@ -1,5 +1,8 @@
 <script setup>
 import { ref } from 'vue'
+import { useRouter } from 'vue-router'
+
+const router = useRouter()
 
 const chooseYear = ref([2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024, 2025])
 const chooseDirection = ref([
@@ -14,6 +17,10 @@ const chooseDirection = ref([
   '人工智能',
   '数据分析'
 ])
+
+const goEdit = () => {
+  router.push('/tool/pushPhoto/editPushPhoto')
+}
 </script>
 
 <template>
@@ -52,7 +59,7 @@ const chooseDirection = ref([
           <div class="avatar">
             <img class="avatar-img" src="" />
           </div>
-          <div class="edit">
+          <div class="edit" @click="goEdit">
             <img class="edit-img" src="@/assets/img/上传照片.jpg" />
           </div>
           <div class="info">
@@ -66,7 +73,7 @@ const chooseDirection = ref([
           <div class="avatar">
             <img class="avatar-img" src="" />
           </div>
-          <div class="edit">
+          <div class="edit" @click="goEdit">
             <img class="edit-img" src="@/assets/img/上传照片.jpg" />
           </div>
           <div class="info">
@@ -80,7 +87,7 @@ const chooseDirection = ref([
           <div class="avatar">
             <img class="avatar-img" src="" />
           </div>
-          <div class="edit">
+          <div class="edit" @click="goEdit">
             <img class="edit-img" src="@/assets/img/上传照片.jpg" />
           </div>
           <div class="info">
@@ -129,14 +136,12 @@ const chooseDirection = ref([
 /* 主体内容 */
 .contentBox {
   margin: 0 279px 0 219px;
-  background-color: pink;
 }
 
 /* 筛选盒子 */
 .contentBox .choose {
   width: 1158px;
   height: 79px;
-  background-color: skyblue;
 }
 .choose .choose-year {
   width: 1043.49px;
@@ -213,7 +218,6 @@ const chooseDirection = ref([
   width: 274px;
   height: 460px;
   position: relative;
-  background-color: skyblue;
 }
 .editBox .edit-item .avatar {
   width: 159.97px;
@@ -233,6 +237,8 @@ const chooseDirection = ref([
 
   border-radius: 50%;
   background: url(https://img.js.design/assets/img/663c72201dace2bd9b3588a6.jpg);
+  background-position: center;
+  background-size: cover;
 }
 .editBox .edit-item .edit {
   z-index: 2;
@@ -241,6 +247,7 @@ const chooseDirection = ref([
   position: absolute;
   top: 26%;
   left: 75.2%;
+  cursor: pointer;
 }
 .editBox .edit-item .edit .edit-img {
   width: 42px;

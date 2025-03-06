@@ -2,6 +2,75 @@
 defineOptions({
   name: 'myLogin2'
 })
+import WelCome2 from '@/component/Global2/WelCome2.vue'
+import { ref } from 'vue'
+import { debounce } from '@/utils/DebounceThrottle'
+import { useRouter } from 'vue-router'
+const router = useRouter()
+
+import { PostLogin, PostAdminLogin } from '@/api'
+
+import { useUserStore } from '@/stores'
+// import { ElMessage } from 'element-plus'
+const userStore = useUserStore()
+
+// 定义表单数据
+// 数据1 管理员
+const name = ref('光头强')
+
+// const account = ref('admin')
+// const password = ref('admin')
+
+// 数据2 用户
+
+const account = ref('23125041015')
+const password = ref('Long050720')
+
+// 验证状态
+const errors = ref({
+  name: '',
+  account: '',
+  password: ''
+})
+
+// 表单提交处理
+const handleSubmit = debounce(async () => {
+  // 清空之前的错误
+  errors.value.name = ''
+  errors.value.account = ''
+  errors.value.password = ''
+
+  // 验证
+  if (!name.value) {
+    errors.value.name = '姓名不能为空'
+    alert(`${errors.value.name}`)
+    return
+  }
+  if (!account.value) {
+    errors.value.account = '账号不能为空'
+    alert(`${errors.value.account}`)
+    return
+  }
+  if (!password.value) {
+    errors.value.password = '密码不能为空'
+    alert(`${errors.value.password}`)
+    return
+  }
+
+  // 如何将数据存储到商店呢  →  我的想法是：在此处点击登录的同时，根据是谁登录，来调用商店中对应的方法，从而将数据存储到商店里
+  // 接口使用
+  if (account.value === 'admin') {
+    const res = await PostAdminLogin(account.value, password.value)
+    userStore.setAdminInfo(res.data)
+    ElMessage.success(res.msg)
+  } else {
+    const res = await PostLogin(account.value, password.value)
+    userStore.setUserInfo(res.data)
+    ElMessage.success(res.msg)
+  }
+
+  router.push('/home') // 跳转到 /home 页面
+}, 200)
 </script>
 
 <template>
@@ -22,7 +91,7 @@ defineOptions({
             <div class="ch_des">姓名</div>
             <div class="en_des">Your name</div>
           </div>
-          <input class="input" placeholder="Enter" />
+          <input class="input" @keyup.enter="handleSubmit" v-model="name" placeholder="Enter" />
         </div>
 
         <!-- 账号 -->
@@ -31,7 +100,7 @@ defineOptions({
             <div class="ch_des">账号</div>
             <div class="en_des">ID(账号为计时器的学号)</div>
           </div>
-          <input class="input" placeholder="Enter" />
+          <input class="input" @keyup.enter="handleSubmit" v-model="account" placeholder="Enter" />
         </div>
 
         <!-- 密码 -->
@@ -40,11 +109,11 @@ defineOptions({
             <div class="ch_des">密码</div>
             <div class="en_des">Password</div>
           </div>
-          <input class="input" placeholder="Enter" />
+          <input class="input" @keyup.enter="handleSubmit" v-model="password" placeholder="Enter" />
         </div>
 
         <!-- 箭头 -->
-        <div class="arrow" to="/introduce">
+        <div class="arrow" @click="handleSubmit">
           <!-- 点击传送 往 *** 页面，待处理 -->
           <div class="you"></div>
         </div>
@@ -52,9 +121,7 @@ defineOptions({
     </div>
 
     <!-- 欢迎横幅 -->
-    <div class="welcome">
-      <span>welcome to join us</span>
-    </div>
+    <WelCome2></WelCome2>
   </div>
 </template>
 
@@ -145,7 +212,10 @@ defineOptions({
   /** 文本1 */
   font-size: 18px;
   font-weight: 400;
-  color: rgba(140, 140, 140, 0.48);
+  /* color: rgba(140, 140, 140, 0.48); */
+}
+.input:focus {
+  color: black;
 }
 
 /* 箭头 */
@@ -169,24 +239,5 @@ defineOptions({
   border-right: 3px solid #fff;
   border-top: 3px solid #fff;
   transform: rotate(45deg);
-}
-
-/* 欢迎横幅 */
-.welcome {
-  min-width: 1440px;
-  height: 87px;
-  background: rgba(204, 204, 204, 0.42);
-
-  display: flex;
-  justify-content: center;
-  align-items: center;
-}
-.welcome span {
-  /** 文本1 */
-  font-size: 18px;
-  font-weight: 400;
-  letter-spacing: 0px;
-  line-height: 26.06px;
-  color: rgba(166, 166, 166, 1);
 }
 </style>

@@ -1,8 +1,37 @@
 <script setup>
 defineOptions({
-  name: 'MeetingLeave2'
-  // 会议请假 页面
+  name: 'myMeetingLeave2'
+  // 我的会议请假 页面 myMeetingLeave
 })
+
+import { ref, computed } from 'vue'
+import { useRouter } from 'vue-router'
+const router = useRouter()
+
+import { GetMeetingLeaveSelf } from '@/api'
+import { useUserStore } from '@/stores'
+const userStore = useUserStore()
+
+const leaveHistory = ref([])
+
+// 获取我的会议请假列表
+const getMyMeetingLeaveList = async () => {
+  const res = await GetMeetingLeaveSelf(userStore.userInfo.userId)
+  console.log(res)
+
+  leaveHistory.value = res.data
+  leaveHistory.value.map((item) => {
+    item.meetingAbsenceStatus = item.meetingAbsenceStatus === 1 ? '已批准' : '未批准'
+  })
+
+  ElMessage.success(res.msg || '获取我的会议请假列表成功')
+}
+getMyMeetingLeaveList()
+
+// 点击前往 未通过 页面  →  UI暂时没有这个页面
+const goToHistory = () => {
+  // router.push('/manage/meeting/meetingLeaveManage')
+}
 </script>
 
 <template>
@@ -31,38 +60,23 @@ defineOptions({
           </div>
 
           <!-- 右侧未归还 -->
-          <div class="history">未通过 ></div>
+          <div class="history" @click="goToHistory">未通过 ></div>
         </div>
 
         <!-- 记录内容 -->
         <div class="record-content">
-          <div class="record-item">
+          <div class="record-item" v-for="item in leaveHistory" :key="item.id">
             <span class="avatar"></span>
-            <span class="name">Peter</span>
-            <span class="date">11周</span>
-            <span class="state">已通过</span>
-            <span class="more">
-              <span class="more-item"></span>
-              <span class="more-item"></span>
-              <span class="more-item"></span>
+            <span class="name">{{ userStore.userInfo.name }}</span>
+            <span class="date">{{ item.meetingAbsenceTime }}</span>
+            <span
+              class="state"
+              :style="{
+                backgroundColor: item.meetingAbsenceStatus === '已批准' ? '#79918b' : '#f8cb1a'
+              }"
+            >
+              {{ item.meetingAbsenceStatus }}
             </span>
-          </div>
-          <div class="record-item">
-            <span class="avatar"></span>
-            <span class="name">Peter</span>
-            <span class="date">11周</span>
-            <span class="state">已通过</span>
-            <span class="more">
-              <span class="more-item"></span>
-              <span class="more-item"></span>
-              <span class="more-item"></span>
-            </span>
-          </div>
-          <div class="record-item">
-            <span class="avatar"></span>
-            <span class="name">Peter</span>
-            <span class="date">11周</span>
-            <span class="state">已通过</span>
             <span class="more">
               <span class="more-item"></span>
               <span class="more-item"></span>
@@ -124,7 +138,7 @@ defineOptions({
   margin: 26px 345px 20px 69px;
   display: flex;
   justify-content: space-around;
-  background-color: skyblue;
+  /* background-color: skyblue; */
 }
 
 .describe {
@@ -143,7 +157,7 @@ defineOptions({
   font-size: 16px;
   font-weight: 400;
   letter-spacing: 0px;
-  line-height: 37.65px;
+  line-height: 44.65px;
   color: rgba(0, 0, 0, 0.5);
 }
 
@@ -172,17 +186,21 @@ defineOptions({
   display: flex;
   flex-direction: column;
   gap: 7px;
-  background-color: skyblue;
+  /* background-color: skyblue; */
 }
 
 .record-content .record-item {
   width: 942px;
   height: 94px;
-  background-color: pink;
+  /* background-color: pink; */
   border-radius: 45px;
   display: flex;
   /* justify-content: center; */
   align-items: center;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.3);
+}
+.record-content .record-item:hover {
+  background-color: #dbe2e0;
 }
 .record-item .avatar {
   margin-left: 20px;
@@ -225,7 +243,7 @@ defineOptions({
   height: 40px;
   border-radius: 24px;
   background: rgba(0, 47, 36, 0.53);
-
+  margin-left: 1;
   display: flex;
   justify-content: center;
   align-items: center;
